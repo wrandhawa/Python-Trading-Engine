@@ -1,4 +1,4 @@
-# PythonTradingEngine
+# Python Trading Engine
 
 ## Version 1
 ## Python trading engine using RSI threshold strategy and Robinhood API
