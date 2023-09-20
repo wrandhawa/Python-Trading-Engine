@@ -77,7 +77,13 @@ while True:
     p = diff.iloc[-1]['Close']
     if diff.iloc[-1]['Fast Moving Average']>diff.iloc[-1]['Slow Moving Average'] and not newtradestatus:
         newtradestatus="buy"
-        order = rh.orders.order_buy_market(symbolll, account_balance/10)
+        stock_price = rh.stocks.get_latest_price(symbol)
+        shareprice = account_balance//stock_price
+        #Threshold that can be adjusted according to willingness to take risk, higher threshold is more risk due to buying more shares of the stock
+        Thresholdlimit = 5
+        if shareprice>Thresholdlimit:
+            shareprice=5
+        order = rh.orders.order_buy_market(symbolll, shareprice/2)
         print(newtradestatus+order)
         robin.place_buy_order(instrum, 1)
     elif diff.iloc[-1]['Fast Moving Average']>diff.iloc[-1]['Slow Moving Average'] and not newtradestatus:
