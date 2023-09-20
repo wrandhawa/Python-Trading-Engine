@@ -5,6 +5,11 @@ import sched
 import time
 import tulipy as ti
 import numpy as np
+import yfinance as yf
+import time
+import pandas_ta as tp
+import datetime
+
 
 rh = robin()
 
@@ -47,6 +52,41 @@ def run(sc):
     #Calls Function Again
 s.enter(1,1, run, (s,))
 s.run()
+
+
+status2= False
+Name = ""
+asset = yf.Ticker(Name)
+slowint = 0
+fastint = 0
+newtradestatus = ""
+#calculate position on stock using two moving averages, fastmoving average which calcultates 
+#simple moving average time period is second parameter, 
+while True:
+    start_date = (datetime.now()-time.time(days=1)).strftime('%Y-%m-%d')
+    diff = asset.history(start=start_date, interval='1m')
+    del diff['Dividends']
+    del diff['Stock Splits']
+    del diff['Volume']
+    diff['Fast Moving Average'] = tp.sma(diff['Close'],slowint)
+    diff['Slow Moving Average'] = tp.sma(diff['Close'],fastint)
+    instrum = rh.instruments("STOCK NAME")[0]
+    account_balance = rh.account.get_account_balance()
+    symbolll= "tickerName"
+    share_quantity = rh.stocks.get_share_quantity(symbolll)
+    p = diff.iloc[-1]['Close']
+    if diff.iloc[-1]['Fast Moving Average']>diff.iloc[-1]['Slow Moving Average'] and not newtradestatus:
+        newtradestatus="buy"
+        order = rh.orders.order_buy_market(symbolll, account_balance/10)
+        print(newtradestatus+order)
+        robin.place_buy_order(instrum, 1)
+    elif diff.iloc[-1]['Fast Moving Average']>diff.iloc[-1]['Slow Moving Average'] and not newtradestatus:
+        newtradestatus="sell"
+        order = rh.orders.order_sell_market(symbolll, share_quantity/2)
+        print(newtradestatus+order)
+    else:
+        newtradestatus = "hold or do nothing"
+        print(newtradestatus+"Current Shares"+ share_quantity)
         
 
 
